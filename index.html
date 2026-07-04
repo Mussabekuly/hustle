@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кофейня ТЕМП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0d0b09;
+    --bg2: #141008;
+    --surface: #1a1510;
+    --surface2: #221e17;
+    --cream: #e8dcc8;
+    --gold: #c8a46e;
+    --gold2: #a07840;
+    --text: #c9bfaf;
+    --muted: #7a6f60;
+    --white: #f5f0e8;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CURSOR */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease, width 0.3s, height 0.3s, background 0.3s;
+    mix-blend-mode: difference;
+  }
+  .cursor.hover { width: 40px; height: 40px; background: var(--cream); }
+
+  /* NOISE */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.5;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 28px 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(200,164,110,0.1);
+    backdrop-filter: blur(20px);
+    background: rgba(13,11,9,0.7);
+    transition: padding 0.4s;
+  }
+  nav.scrolled { padding: 18px 60px; }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    letter-spacing: 0.15em;
+    color: var(--cream);
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--gold); }
+
+  .nav-links { display: flex; gap: 40px; list-style: none; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--cream); }
+
+  .nav-cta {
+    border: 1px solid var(--gold2);
+    color: var(--gold);
+    padding: 10px 24px;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+  .nav-cta:hover { background: var(--gold); color: var(--bg); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    display: flex; flex-direction: column;
+    justify-content: flex-end;
+    padding: 140px 60px 100px;
+    position: relative; z-index: 2;
+  }
+
+  .hero-tag {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .hero-tag::before {
+    content: '';
+    display: block; width: 32px; height: 1px;
+    background: var(--gold);
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(56px, 7vw, 96px);
+    font-weight: 900;
+    line-height: 1.0;
+    color: var(--white);
+    margin-bottom: 32px;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-desc {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--muted);
+    max-width: 420px;
+    margin-bottom: 52px;
+  }
+
+  .hero-btns { display: flex; gap: 20px; align-items: center; }
+
+  .btn-primary {
+    background: var(--gold);
+    color: var(--bg);
+    padding: 16px 36px;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: none;
+    cursor: none;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--cream); transform: translateY(-2px); }
+
+  .btn-ghost {
+    color: var(--cream);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+    transition: gap 0.3s;
+  }
+  .btn-ghost:hover { gap: 18px; }
+  .btn-ghost::after { content: '→'; color: var(--gold); }
+
+  .hero-right {
+    position: relative; overflow: hidden;
+  }
+  .hero-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.85) saturate(1);
+    transition: transform 8s ease;
+    transform: scale(1.05);
+  }
+  .hero:hover .hero-img { transform: scale(1.0); }
+
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, var(--bg) 0%, transparent 40%);
+  }
+
+  .hero-scroll {
+    position: absolute; bottom: 40px; right: 60px;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 12px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    z-index: 2;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  .hero-scroll::after {
+    content: '';
+    width: 1px; height: 60px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  /* STRIP */
+  .marquee-strip {
+    background: var(--gold);
+    padding: 14px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .marquee-inner {
+    display: inline-flex;
+    animation: marquee 20s linear infinite;
+  }
+  .marquee-item {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bg);
+    font-weight: 500;
+    padding: 0 40px;
+  }
+  .marquee-dot { color: rgba(13,11,9,0.4); }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ABOUT */
+  .about {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    padding: 120px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+    align-items: center;
+  }
+
+  .about-images {
+    position: relative;
+    height: 560px;
+  }
+  .about-img-main {
+    width: 75%; height: 480px;
+    object-fit: cover;
+    filter: brightness(0.95) saturate(1.05);
+    position: absolute;
+    top: 0; left: 0;
+  }
+  .about-img-accent {
+    width: 55%; height: 300px;
+    object-fit: cover;
+    filter: brightness(0.9) saturate(1.05);
+    position: absolute;
+    bottom: 0; right: 0;
+    border: 4px solid var(--bg);
+  }
+  .about-badge {
+    position: absolute;
+    bottom: 60px; left: 55%;
+    background: var(--gold);
+    color: var(--bg);
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    z-index: 3;
+    animation: rotate 12s linear infinite;
+  }
+  .about-badge span { font-size: 10px; letter-spacing: 0.1em; font-family: 'Jost', sans-serif; font-weight: 400; }
+  @keyframes rotate { to { transform: rotate(360deg); } }
+
+  .about-content { padding-left: 80px; }
+
+  .section-tag {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-tag::before {
+    content: '';
+    display: block; width: 24px; height: 1px;
+    background: var(--gold);
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 4vw, 52px);
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 28px;
+  }
+  .section-title em { font-style: italic; color: var(--gold); }
+
+  .section-text {
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--muted);
+    margin-bottom: 48px;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(200,164,110,0.2);
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--gold);
+    display: block;
+  }
+  .stat-label {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* MENU */
+  .menu { padding: 120px 60px; background: var(--bg2); }
+
+  .section-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 72px;
+    max-width: 1280px;
+    margin-left: auto; margin-right: auto;
+  }
+
+  .menu-tabs {
+    display: flex; gap: 4px;
+    background: var(--surface);
+    padding: 4px;
+    margin-bottom: 60px;
+    max-width: 1280px;
+    margin-left: auto; margin-right: auto;
+    width: fit-content;
+  }
+  .tab {
+    padding: 10px 28px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: none;
+    transition: all 0.3s;
+    border: none;
+    background: none;
+    font-family: 'Jost', sans-serif;
+  }
+  .tab.active { background: var(--gold); color: var(--bg); font-weight: 500; }
+  .tab:hover:not(.active) { color: var(--cream); }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .menu-card {
+    background: var(--surface);
+    overflow: hidden;
+    position: relative;
+    group: true;
+    transition: transform 0.4s;
+  }
+  .menu-card:hover { transform: translateY(-8px); }
+  .menu-card:hover .menu-card-img { filter: brightness(1) saturate(1.1); transform: scale(1.1); }
+
+  .menu-card-img-wrap { overflow: hidden; height: 220px; }
+  .menu-card-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.92) saturate(1);
+    transition: filter 0.5s, transform 0.5s;
+  }
+
+  .menu-card-body { padding: 24px; }
+  .menu-card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+  .menu-card-desc { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+  .menu-card-footer { display: flex; justify-content: space-between; align-items: center; }
+  .menu-price { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); }
+  .menu-add {
+    width: 36px; height: 36px;
+    border: 1px solid var(--gold2);
+    color: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    cursor: none;
+    transition: all 0.3s;
+    background: none;
+  }
+  .menu-add:hover { background: var(--gold); color: var(--bg); }
+
+  /* EXPERIENCE */
+  .experience {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 70vh;
+  }
+
+  .exp-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.85) saturate(1);
+  }
+
+  .exp-content {
+    background: var(--surface2);
+    padding: 100px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .features { margin-top: 52px; display: flex; flex-direction: column; gap: 32px; }
+  .feature { display: flex; gap: 24px; align-items: flex-start; }
+  .feature-icon {
+    width: 48px; height: 48px;
+    border: 1px solid rgba(200,164,110,0.3);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .feature-title { font-size: 16px; color: var(--cream); margin-bottom: 6px; font-weight: 500; }
+  .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+  /* TESTIMONIALS */
+  .testimonials { padding: 120px 60px; }
+
+  .testimonials-inner {
+    max-width: 1280px; margin: 0 auto;
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 72px;
+  }
+
+  .testimonial {
+    background: var(--surface);
+    padding: 48px 40px;
+    position: relative;
+    transition: background 0.4s;
+  }
+  .testimonial:hover { background: var(--surface2); }
+
+  .stars { color: var(--gold); font-size: 14px; margin-bottom: 24px; letter-spacing: 3px; }
+  .testimonial-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--cream);
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+  .testimonial-author { display: flex; align-items: center; gap: 16px; }
+  .author-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--gold2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--cream);
+  }
+  .author-name { font-size: 14px; color: var(--cream); font-weight: 500; }
+  .author-role { font-size: 12px; color: var(--muted); }
+
+  /* GALLERY */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(2, 250px);
+    gap: 2px;
+  }
+
+  .gallery-item {
+    overflow: hidden;
+    position: relative;
+  }
+  .gallery-item:first-child { grid-column: span 2; grid-row: span 2; }
+  .gallery-item:nth-child(3) { grid-column: span 1; grid-row: span 2; }
+
+  .gallery-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.9) saturate(1);
+    transition: filter 0.5s, transform 0.7s;
+  }
+  .gallery-item:hover .gallery-img {
+    filter: brightness(1) saturate(1.1);
+    transform: scale(1.08);
+  }
+
+  /* CTA */
+  .cta-section {
+    padding: 140px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 100%, rgba(200,164,110,0.12), transparent),
+      var(--bg2);
+  }
+  .cta-content { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
+  .cta-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 6vw, 72px);
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 24px;
+  }
+  .cta-title em { font-style: italic; color: var(--gold); }
+  .cta-desc { color: var(--muted); font-size: 16px; line-height: 1.8; margin-bottom: 52px; }
+
+  .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+  .btn-outline {
+    border: 1px solid var(--gold2);
+    color: var(--gold);
+    padding: 16px 36px;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: none;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: inline-block;
+  }
+  .btn-outline:hover { background: var(--gold); color: var(--bg); }
+
+  /* FOOTER */
+  footer {
+    background: var(--surface);
+    padding: 80px 60px 40px;
+    border-top: 1px solid rgba(200,164,110,0.1);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-bottom: 60px;
+    border-bottom: 1px solid rgba(200,164,110,0.1);
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--cream);
+    margin-bottom: 20px;
+    display: block;
+  }
+  .footer-logo span { color: var(--gold); }
+  .footer-desc { font-size: 14px; line-height: 1.8; color: var(--muted); margin-bottom: 32px; }
+
+  .footer-social { display: flex; gap: 12px; }
+  .social-btn {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(200,164,110,0.3);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+  .social-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  .footer-col-title {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cream);
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  .footer-links a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color 0.3s; }
+  .footer-links a:hover { color: var(--gold); }
+
+  .footer-bottom {
+    max-width: 1280px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 32px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ANIMATIONS */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+  /* CALL FAB */
+  .call-fab {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    z-index: 500;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    text-decoration: none;
+    cursor: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    animation: fab-pulse 2.4s ease-in-out infinite;
+    transition: transform 0.3s, background 0.3s;
+  }
+  .call-fab:hover { transform: scale(1.08); background: var(--cream); }
+  .call-fab-label {
+    position: absolute;
+    right: 72px;
+    white-space: nowrap;
+    background: var(--surface);
+    color: var(--cream);
+    padding: 8px 16px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: translateX(8px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    border: 1px solid rgba(200,164,110,0.2);
+  }
+  .call-fab:hover .call-fab-label { opacity: 1; transform: translateX(0); }
+
+  @keyframes fab-pulse {
+    0%, 100% { box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 0 rgba(200,164,110,0.4); }
+    50% { box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 10px rgba(200,164,110,0); }
+  }
+
+  @media (max-width: 900px) {
+    .call-fab { bottom: 20px; right: 20px; width: 54px; height: 54px; font-size: 20px; }
+    .call-fab-label { display: none; }
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    .hero-left { padding: 120px 24px 80px; }
+    .about { grid-template-columns: 1fr; padding: 60px 24px; }
+    .about-images { height: 360px; margin-bottom: 40px; }
+    .about-content { padding-left: 0; }
+    .menu { padding: 80px 24px; }
+    .menu-grid { grid-template-columns: 1fr 1fr; }
+    .experience { grid-template-columns: 1fr; }
+    .exp-img { height: 400px; }
+    .exp-content { padding: 60px 24px; }
+    .testimonials { padding: 80px 24px; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .gallery { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+    .gallery-item:first-child { grid-column: span 2; grid-row: span 1; height: 280px; }
+    .gallery-item:nth-child(3) { grid-row: span 1; height: 200px; }
+    .gallery-item { height: 200px; }
+    .cta-section { padding: 80px 24px; }
+    footer { padding: 60px 24px 32px; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+    .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<!-- CALL FAB -->
+<a href="tel:+77001234567" class="call-fab" aria-label="Позвонить в кофейню Темп">
+  <span class="call-fab-label">Позвонить сейчас</span>
+  📞
+</a>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="logo">Темп<span>.</span></div>
+  <ul class="nav-links">
+    <li><a href="#menu">Меню</a></li>
+    <li><a href="#about">О нас</a></li>
+    <li><a href="#experience">Атмосфера</a></li>
+    <li><a href="#gallery">Галерея</a></li>
+    <li><a href="#contact">Контакты</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Забронировать</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">Specialty кофе · Астана</div>
+    <h1 class="hero-title">
+      Каждый<br>глоток —<br><em>момент</em>
+    </h1>
+    <p class="hero-desc">
+      Зёрна из лучших регионов мира. Авторские напитки от бариста-чемпионов. Пространство, где время замедляется.
+    </p>
+    <div class="hero-btns">
+      <a href="#menu" class="btn-primary">Смотреть меню</a>
+      <a href="#about" class="btn-ghost">Наша история</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <img
+      src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&auto=format&fit=crop&q=80"
+      alt="Кофейня Темп"
+      class="hero-img"
+    >
+    <div class="hero-overlay"></div>
+  </div>
+  <div class="hero-scroll">Скролл</div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-strip">
+  <div class="marquee-inner">
+    <span class="marquee-item">Эспрессо</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Капучино</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Флэт Уайт</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Колд Брю</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Матча Латте</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Авторские десерты</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Specialty зёрна</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Эспрессо</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Капучино</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Флэт Уайт</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Колд Брю</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Матча Латте</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Авторские десерты</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">Specialty зёрна</span><span class="marquee-dot">✦</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-images fade-up">
+    <img
+      src="https://images.unsplash.com/photo-1511081692775-05d0f180a065?w=700&auto=format&fit=crop&q=80"
+      alt="Кофе" class="about-img-main"
+    >
+    <img
+      src="https://images.unsplash.com/photo-1442975631134-7b5e79c79e5f?w=500&auto=format&fit=crop&q=80"
+      alt="Бариста" class="about-img-accent"
+    >
+    <div class="about-badge">8<span>лет</span></div>
+  </div>
+  <div class="about-content fade-up">
+    <div class="section-tag">Наша история</div>
+    <h2 class="section-title">Страсть к кофе<br><em>с 2016 года</em></h2>
+    <p class="section-text">
+      Мы начинали как маленькая кофейня на 12 мест. Сегодня «Темп» — это место, куда возвращаются снова и снова. Не просто за кофе — за ощущением. За этой особенной тишиной в час пик, когда чашка в руках и больше ничего не нужно.
+    </p>
+    <a href="#menu" class="btn-primary">Изучить меню</a>
+    <div class="stats">
+      <div>
+        <span class="stat-num">40+</span>
+        <span class="stat-label">Напитков</span>
+      </div>
+      <div>
+        <span class="stat-num">12</span>
+        <span class="stat-label">Стран-поставщиков</span>
+      </div>
+      <div>
+        <span class="stat-num">30k</span>
+        <span class="stat-label">Гостей в год</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section class="menu" id="menu">
+  <div class="section-header fade-up">
+    <div>
+      <div class="section-tag">Что попробовать</div>
+      <h2 class="section-title">Наше <em>меню</em></h2>
+    </div>
+    <a href="#" class="btn-ghost" style="color: var(--muted); text-decoration:none; display:flex; align-items:center; gap:10px; font-size:13px; letter-spacing:0.1em;">Полное меню <span style="color:var(--gold)">→</span></a>
+  </div>
+
+  <div class="menu-tabs">
+    <button class="tab active" onclick="filterMenu(this,'кофе')">Кофе</button>
+    <button class="tab" onclick="filterMenu(this,'альтернатива')">Альтернатива</button>
+    <button class="tab" onclick="filterMenu(this,'еда')">Еда</button>
+    <button class="tab" onclick="filterMenu(this,'десерты')">Десерты</button>
+  </div>
+
+  <div class="menu-grid" id="menuGrid">
+    <!-- Coffee items -->
+    <div class="menu-card" data-cat="кофе">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500&auto=format&fit=crop&q=80" alt="Эспрессо" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Двойной эспрессо</div>
+        <div class="menu-card-desc">Бленд Эфиопия + Колумбия. Вишня, тёмный шоколад, длинное послевкусие.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">800 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card" data-cat="кофе">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1534778101976-62847782c213?w=500&auto=format&fit=crop&q=80" alt="Капучино" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Капучино</div>
+        <div class="menu-card-desc">Мягкая текстура молока, насыщенная основа. Классика без компромиссов.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">1 200 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card" data-cat="кофе">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=500&auto=format&fit=crop&q=80" alt="Флэт Уайт" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Флэт Уайт</div>
+        <div class="menu-card-desc">Двойной рестретто, шёлковое молоко. Для тех, кто ценит концентрат вкуса.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">1 400 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card" data-cat="кофе">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=500&auto=format&fit=crop&q=80" alt="Колд Брю" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Колд Брю</div>
+        <div class="menu-card-desc">18 часов холодной экстракции. Гладкий, насыщенный, без кислинки.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">1 600 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <!-- Alt items -->
+    <div class="menu-card" data-cat="альтернатива" style="display:none">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&auto=format&fit=crop&q=80" alt="Матча" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Матча Латте</div>
+        <div class="menu-card-desc">Церемониальная матча из Удзи, растительное молоко на выбор.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">1 500 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card" data-cat="альтернатива" style="display:none">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1563897539633-7374c276c212?w=500&auto=format&fit=crop&q=80" alt="Чай" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Масала Чай</div>
+        <div class="menu-card-desc">Пряный купаж, топлёное молоко, кардамон, имбирь, корица.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">1 100 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card" data-cat="альтернатива" style="display:none">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1455099929213-e82c54ba5476?w=500&auto=format&fit=crop&q=80" alt="Лимонад" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Облепиховый лимонад</div>
+        <div class="menu-card-desc">Местная облепиха, лимон, мята, газированная вода. Авторский рецепт.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">900 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card" data-cat="альтернатива" style="display:none">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&auto=format&fit=crop&q=80" alt="Горячий шоколад" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Горячий шоколад</div>
+        <div class="menu-card-desc">72% какао Valrhona, сливочное молоко, морская соль.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">1 300 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <!-- Food -->
+    <div class="menu-card" data-cat="еда" style="display:none">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&auto=format&fit=crop&q=80" alt="Авокадо тост" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Тост с авокадо</div>
+        <div class="menu-card-desc">Ржаной хлеб, крем-авокадо, яйцо пашот, микрогрин, перец чили.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">2 200 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card" data-cat="еда" style="display:none">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&auto=format&fit=crop&q=80" alt="Сэндвич" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Бриошь-сэндвич</div>
+        <div class="menu-card-desc">Курица гриль, пармезан, руккола, томаты черри, айоли.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">2 800 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card" data-cat="еда" style="display:none">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&auto=format&fit=crop&q=80" alt="Гранола" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Гранола с йогуртом</div>
+        <div class="menu-card-desc">Домашняя гранола, греческий йогурт, свежие ягоды, мёд.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">1 800 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card" data-cat="еда" style="display:none">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=500&auto=format&fit=crop&q=80" alt="Боул" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Смузи-боул</div>
+        <div class="menu-card-desc">Асаи, банан, клубника, семена чиа, кокосовые хлопья, орехи.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">2 400 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <!-- Desserts -->
+    <div class="menu-card" data-cat="десерты" style="display:none">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500&auto=format&fit=crop&q=80" alt="Торт" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Шоколадный торт</div>
+        <div class="menu-card-desc">Бельгийский шоколад, ганаш, хрустящий пралине, крем-брюле.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">1 900 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card" data-cat="десерты" style="display:none">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1587314168485-3236d6710814?w=500&auto=format&fit=crop&q=80" alt="Чизкейк" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Чизкейк «Нью-Йорк»</div>
+        <div class="menu-card-desc">Классический рецепт, сливочный сыр, ягодное кули, бисквитная основа.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">1 700 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card" data-cat="десерты" style="display:none">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=500&auto=format&fit=crop&q=80" alt="Круассан" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Круассан с миндалём</div>
+        <div class="menu-card-desc">Слоёное тесто ручной работы, миндальный крем, сахарная пудра.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">1 100 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card" data-cat="десерты" style="display:none">
+      <div class="menu-card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1564355808539-22fda35bed7e?w=500&auto=format&fit=crop&q=80" alt="Макарон" class="menu-card-img">
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">Набор макарон</div>
+        <div class="menu-card-desc">6 штук. Ваниль, фисташка, малина, шоколад, лимон, карамель.</div>
+        <div class="menu-card-footer">
+          <div class="menu-price">2 100 ₸</div>
+          <button class="menu-add">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section class="experience" id="experience">
+  <img
+    src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&auto=format&fit=crop&q=80"
+    alt="Интерьер кофейни" class="exp-img"
+  >
+  <div class="exp-content">
+    <div class="section-tag">Почему Темп</div>
+    <h2 class="section-title">Больше, чем<br><em>просто кофе</em></h2>
+    <div class="features">
+      <div class="feature fade-up">
+        <div class="feature-icon">☕</div>
+        <div>
+          <div class="feature-title">Specialty зёрна</div>
+          <div class="feature-desc">Работаем напрямую с фермами Эфиопии, Колумбии и Кении. Свежая обжарка каждую неделю от наших партнёров.</div>
+        </div>
+      </div>
+      <div class="feature fade-up">
+        <div class="feature-icon">🏆</div>
+        <div>
+          <div class="feature-title">Бариста-чемпионы</div>
+          <div class="feature-desc">Наша команда — призёры чемпионатов Казахстана по кофе. Постоянное обучение и развитие культуры.</div>
+        </div>
+      </div>
+      <div class="feature fade-up">
+        <div class="feature-icon">🌿</div>
+        <div>
+          <div class="feature-title">Экологичный подход</div>
+          <div class="feature-desc">Компостируемые стаканчики, безотходное производство, сотрудничество с локальными поставщиками.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<div class="gallery">
+  <div class="gallery-item">
+    <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&fit=crop&q=80" alt="" class="gallery-img">
+  </div>
+  <div class="gallery-item">
+    <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=500&auto=format&fit=crop&q=80" alt="" class="gallery-img">
+  </div>
+  <div class="gallery-item">
+    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&auto=format&fit=crop&q=80" alt="" class="gallery-img">
+  </div>
+  <div class="gallery-item">
+    <img src="https://images.unsplash.com/photo-1442975631134-7b5e79c79e5f?w=500&auto=format&fit=crop&q=80" alt="" class="gallery-img">
+  </div>
+  <div class="gallery-item">
+    <img src="https://images.unsplash.com/photo-1511081692775-05d0f180a065?w=500&auto=format&fit=crop&q=80" alt="" class="gallery-img">
+  </div>
+  <div class="gallery-item">
+    <img src="https://images.unsplash.com/photo-1459755486867-b55449bb39ff?w=500&auto=format&fit=crop&q=80" alt="" class="gallery-img">
+  </div>
+  <div class="gallery-item">
+    <img src="https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=500&auto=format&fit=crop&q=80" alt="" class="gallery-img">
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="testimonials">
+  <div class="testimonials-inner">
+    <div class="section-header fade-up">
+      <div>
+        <div class="section-tag">Гости о нас</div>
+        <h2 class="section-title">Живые <em>отзывы</em></h2>
+      </div>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial fade-up">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">«Лучший капучино в Астане — без преувеличения. Приходим сюда каждое утро уже два года. Атмосфера вне конкуренции.»</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">А</div>
+          <div>
+            <div class="author-name">Айгерим К.</div>
+            <div class="author-role">Постоянный гость</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial fade-up">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">«Наконец-то кофейня, где понимают, что такое specialty. Эфиопский сингл ориджин от них — это вообще отдельный опыт.»</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">Д</div>
+          <div>
+            <div class="author-name">Данияр М.</div>
+            <div class="author-role">Кофеман со стажем</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial fade-up">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">«Работаю здесь по утрам — тихо, быстрый вайфай, вкусный кофе. Просто идеальное место для фриланса и встреч.»</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">С</div>
+          <div>
+            <div class="author-name">Сара Б.</div>
+            <div class="author-role">Дизайнер</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <div class="cta-content">
+    <div class="section-tag" style="justify-content:center">Приходите к нам</div>
+    <h2 class="cta-title">Забронируйте<br><em>столик</em> сейчас</h2>
+    <p class="cta-desc">
+      Проведите деловую встречу или просто хороший вечер. Мы открыты каждый день с 07:00 до 23:00.
+    </p>
+    <div class="cta-btns">
+      <a href="tel:+77001234567" class="btn-primary">Позвонить</a>
+      <a href="https://wa.me/77001234567" class="btn-outline">WhatsApp</a>
+    </div>
+    <p style="margin-top:40px; color:var(--muted); font-size:14px;">
+      📍 ул. Кабанбай батыра, 11, Астана · пн–вс 07:00–23:00
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <span class="footer-logo">Темп<span>.</span></span>
+      <p class="footer-desc">Specialty кофе, авторские напитки и пространство для мыслей в самом центре Астаны. Открыты каждый день.</p>
+      <div class="footer-social">
+        <a href="#" class="social-btn">in</a>
+        <a href="#" class="social-btn">ig</a>
+        <a href="#" class="social-btn">tg</a>
+        <a href="#" class="social-btn">tt</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Меню</div>
+      <ul class="footer-links">
+        <li><a href="#">Кофе</a></li>
+        <li><a href="#">Альтернатива</a></li>
+        <li><a href="#">Завтраки</a></li>
+        <li><a href="#">Десерты</a></li>
+        <li><a href="#">Сезонное меню</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Кофейня</div>
+      <ul class="footer-links">
+        <li><a href="#">О нас</a></li>
+        <li><a href="#">Команда</a></li>
+        <li><a href="#">Мероприятия</a></li>
+        <li><a href="#">Подарочные карты</a></li>
+        <li><a href="#">Вакансии</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Контакты</div>
+      <ul class="footer-links">
+        <li><a href="#">+7 700 123 45 67</a></li>
+        <li><a href="#">hello@temp.kz</a></li>
+        <li><a href="#">Кабанбай батыра, 11</a></li>
+        <li><a href="#">пн–вс 07:00–23:00</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Кофейня «Темп». Все права защищены.</span>
+    <span>Политика конфиденциальности · Договор оферты</span>
+  </div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+  });
+  document.querySelectorAll('a, button, .menu-card, .gallery-item').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+
+  // Nav scroll
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Menu filter
+  function filterMenu(btn, cat) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.menu-card').forEach(card => {
+      card.style.display = card.dataset.cat === cat ? 'block' : 'none';
+    });
+  }
+
+  // Scroll animations
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        const siblings = e.target.parentElement?.querySelectorAll('.fade-up');
+        if (siblings) {
+          siblings.forEach((s, i) => {
+            setTimeout(() => s.classList.add('visible'), i * 120);
+          });
+        }
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Hero image parallax
+  const heroImg = document.querySelector('.hero-img');
+  if (heroImg) {
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY * 0.3;
+      heroImg.style.transform = `translateY(${y}px) scale(1.05)`;
+    });
+  }
+</script>
+</body>
+</html>
